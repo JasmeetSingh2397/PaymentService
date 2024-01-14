@@ -18,6 +18,12 @@ public class PaymentService {
     private PaymentGatewayChooserStrategy paymentGatewayChooserStrategy;
     private RestTemplate restTemplate;
 
+    @Value("${OrderService.endpoint}")
+    private String orderServiceEndpoint;
+
+    @Value("${UserService.endpoint}")
+    private String userServiceEndpoint;
+
     public PaymentService(PaymentGatewayChooserStrategy paymentGatewayChooserStrategy, RestTemplate restTemplate) {
 
         this.paymentGatewayChooserStrategy = paymentGatewayChooserStrategy;
@@ -28,7 +34,7 @@ public class PaymentService {
         Map<String, Long> uriVariables = new HashMap<>();
         uriVariables.put("id", orderId);
 
-        ResponseEntity<Orders> ordersResponseEntity = restTemplate.getForEntity("http://localhost:5000/orders/amount/{id}", Orders.class, uriVariables);
+        ResponseEntity<Orders> ordersResponseEntity = restTemplate.getForEntity(orderServiceEndpoint, Orders.class, uriVariables);
         Orders order= ordersResponseEntity.getBody();
 //        Orders order = restTemplate.getForObject("http://localhost:5000/orders/amount/{id}", Orders.class, uriVariables);
 //        Orders order= ordersResponseEntity.getBody();
@@ -36,7 +42,7 @@ public class PaymentService {
         Long userId= order.getUserId();
         Map<String, Long> userUriVariables = new HashMap<>();
         userUriVariables.put("id", userId);
-        ResponseEntity<User> userResponseEntity = restTemplate.getForEntity("http://localhost:9000/users/{id}", User.class, userUriVariables);
+        ResponseEntity<User> userResponseEntity = restTemplate.getForEntity(userServiceEndpoint, User.class, userUriVariables);
         User user= userResponseEntity.getBody();
         String emailOfUser= user.getEmail();
         Double amount= order.getAmount();
